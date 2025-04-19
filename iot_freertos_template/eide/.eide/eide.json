@@ -1,0 +1,448 @@
+{
+  "name": "Project",
+  "type": "ARM",
+  "dependenceList": [],
+  "srcDirs": [
+    ".eide/deps"
+  ],
+  "virtualFolder": {
+    "name": "<virtual_root>",
+    "files": [],
+    "folders": [
+      {
+        "name": "app",
+        "files": [
+          {
+            "path": "../app/FreeRTOSConfig.h"
+          },
+          {
+            "path": "../app/main.c"
+          },
+          {
+            "path": "../app/main.h"
+          },
+          {
+            "path": "../app/my_tasks.h"
+          },
+          {
+            "path": "../app/task_led.c"
+          },
+          {
+            "path": "../app/task_net.c"
+          },
+          {
+            "path": "../app/task_sensor.c"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "driver",
+        "files": [
+          {
+            "path": "../driver/delay.h"
+          },
+          {
+            "path": "../driver/delay.c"
+          },
+          {
+            "path": "../driver/timer.h"
+          },
+          {
+            "path": "../driver/timer.c"
+          },
+          {
+            "path": "../driver/led.h"
+          },
+          {
+            "path": "../driver/led.c"
+          },
+          {
+            "path": "../driver/usart.h"
+          },
+          {
+            "path": "../driver/usart.c"
+          },
+          {
+            "path": "../driver/esp8266.h"
+          },
+          {
+            "path": "../driver/esp8266.c"
+          },
+          {
+            "path": "../driver/i2c.h"
+          },
+          {
+            "path": "../driver/i2c.c"
+          },
+          {
+            "path": "../driver/oled.h"
+          },
+          {
+            "path": "../driver/oled.c"
+          },
+          {
+            "path": "../driver/oled_data.h"
+          },
+          {
+            "path": "../driver/oled_data.c"
+          },
+          {
+            "path": "../driver/dht11.h"
+          },
+          {
+            "path": "../driver/dht11.c"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "fireware",
+        "files": [
+          {
+            "path": "../fireware/cmsis/core/core_cm3.c"
+          },
+          {
+            "path": "../fireware/cmsis/core/core_cm3.h"
+          },
+          {
+            "path": "../fireware/cmsis/device/stm32f10x.h"
+          },
+          {
+            "path": "../fireware/cmsis/device/stm32f10x_conf.h"
+          },
+          {
+            "path": "../fireware/cmsis/device/stm32f10x_it.c"
+          },
+          {
+            "path": "../fireware/cmsis/device/stm32f10x_it.h"
+          },
+          {
+            "path": "../fireware/cmsis/device/system_stm32f10x.c"
+          },
+          {
+            "path": "../fireware/cmsis/device/system_stm32f10x.h"
+          },
+          {
+            "path": "../fireware/cmsis/device/startup_stm32f10x_md.s"
+          },
+          {
+            "path": "../fireware/driver/src/misc.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_adc.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_bkp.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_can.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_cec.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_crc.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_dac.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_dbgmcu.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_dma.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_exti.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_flash.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_fsmc.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_gpio.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_i2c.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_iwdg.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_pwr.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_rcc.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_rtc.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_sdio.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_spi.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_tim.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_usart.c"
+          },
+          {
+            "path": "../fireware/driver/src/stm32f10x_wwdg.c"
+          }
+        ],
+        "folders": []
+      },
+      {
+        "name": "third_lib",
+        "files": [],
+        "folders": [
+          {
+            "name": "cjson",
+            "files": [
+              {
+                "path": "../third_lib/cjson/cJSON.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "freertos",
+            "files": [
+              {
+                "path": "../third_lib/freertos/croutine.c"
+              },
+              {
+                "path": "../third_lib/freertos/event_groups.c"
+              },
+              {
+                "path": "../third_lib/freertos/list.c"
+              },
+              {
+                "path": "../third_lib/freertos/queue.c"
+              },
+              {
+                "path": "../third_lib/freertos/stream_buffer.c"
+              },
+              {
+                "path": "../third_lib/freertos/tasks.c"
+              },
+              {
+                "path": "../third_lib/freertos/timers.c"
+              },
+              {
+                "path": "../third_lib/freertos/portable/MemMang/heap_4.c"
+              },
+              {
+                "path": "../third_lib/freertos/portable/RVDS/ARM_CM3/port.c"
+              },
+              {
+                "path": "../third_lib/freertos/portable/RVDS/ARM_CM3/portmacro.h"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "mqtt",
+            "files": [
+              {
+                "path": "../third_lib/mqtt/MqttKit.c"
+              }
+            ],
+            "folders": []
+          },
+          {
+            "name": "onenet",
+            "files": [
+              {
+                "path": "../third_lib/onenet/src/base64.c"
+              },
+              {
+                "path": "../third_lib/onenet/src/hmac_sha1.c"
+              },
+              {
+                "path": "../third_lib/onenet/src/onenet.c"
+              }
+            ],
+            "folders": []
+          }
+        ]
+      }
+    ]
+  },
+  "outDir": "build",
+  "deviceName": null,
+  "packDir": null,
+  "miscInfo": {
+    "uid": "e88b458487af8f344535c41df585a119"
+  },
+  "targets": {
+    "Target 1": {
+      "excludeList": [],
+      "toolchain": "AC5",
+      "compileConfig": {
+        "cpuType": "Cortex-M3",
+        "floatingPointHardware": "none",
+        "scatterFilePath": "",
+        "useCustomScatterFile": false,
+        "storageLayout": {
+          "RAM": [
+            {
+              "tag": "RAM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "noInit": false
+            },
+            {
+              "tag": "RAM",
+              "id": 2,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "noInit": false
+            },
+            {
+              "tag": "RAM",
+              "id": 3,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "noInit": false
+            },
+            {
+              "tag": "IRAM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x20000000",
+                "size": "0x5000"
+              },
+              "isChecked": true,
+              "noInit": false
+            },
+            {
+              "tag": "IRAM",
+              "id": 2,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "noInit": false
+            }
+          ],
+          "ROM": [
+            {
+              "tag": "ROM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "isStartup": false
+            },
+            {
+              "tag": "ROM",
+              "id": 2,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "isStartup": false
+            },
+            {
+              "tag": "ROM",
+              "id": 3,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "isStartup": false
+            },
+            {
+              "tag": "IROM",
+              "id": 1,
+              "mem": {
+                "startAddr": "0x8000000",
+                "size": "0x10000"
+              },
+              "isChecked": true,
+              "isStartup": true
+            },
+            {
+              "tag": "IROM",
+              "id": 2,
+              "mem": {
+                "startAddr": "0x0",
+                "size": "0x0"
+              },
+              "isChecked": false,
+              "isStartup": false
+            }
+          ]
+        },
+        "options": "null"
+      },
+      "uploader": "OpenOCD",
+      "uploadConfig": {
+        "bin": "",
+        "target": "stm32f1x",
+        "interface": "stlink",
+        "baseAddr": "0x08000000"
+      },
+      "uploadConfigMap": {
+        "JLink": {
+          "bin": "",
+          "baseAddr": "",
+          "cpuInfo": {
+            "vendor": "null",
+            "cpuName": "null"
+          },
+          "proType": 1,
+          "speed": 8000,
+          "otherCmds": ""
+        }
+      },
+      "custom_dep": {
+        "name": "default",
+        "incList": [
+          "../app",
+          "../driver",
+          "../fireware/cmsis/core",
+          "../fireware/cmsis/device",
+          "../fireware/driver/inc",
+          "../third_lib/freertos/include",
+          "../third_lib/freertos/portable/RVDS/ARM_CM3",
+          "../third_lib/cjson",
+          "../third_lib/mqtt",
+          "../third_lib/onenet/inc",
+          ".cmsis/include",
+          "../mdk/RTE/_Target 1",
+          ".eide/deps"
+        ],
+        "libList": [],
+        "sourceDirList": [],
+        "defineList": [
+          "STM32F10X_MD",
+          "USE_STDPERIPH_DRIVER"
+        ]
+      }
+    }
+  },
+  "version": "3.3"
+}
