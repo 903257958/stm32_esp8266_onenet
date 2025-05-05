@@ -42,6 +42,15 @@ TimerDev_t timer_delay = {.config = {TIM4, 71, 49999, NULL}}; // 用于FreeRTOS�
 LEDDev_t led = {.config = {GPIOC, GPIO_Pin_13, GPIO_LEVEL_LOW}};
 OLEDDev_t oled = {.config = {GPIOB, GPIO_Pin_6, GPIOB, GPIO_Pin_7}};
 DHT11Dev_t dht11 = {.config = {GPIOB, GPIO_Pin_0}};
+ESP8266Dev_t esp8266;
+UARTDev_t debug = {.config = {
+    .uartx = USART1, 
+    .baud = 115200,
+    .tx_port = GPIOA, 
+    .tx_pin = GPIO_Pin_9, 
+    .rx_port = GPIOA, 
+    .rx_pin = GPIO_Pin_10
+}};
 
 /* 开始任务 */
 void task_start(void *pvParameters)
@@ -63,39 +72,38 @@ int main(void)
     
     /* 硬件设备初始化 */
 	delay_init(&timer_delay);
-	Usart1_Init(115200);							//串口1，打印信息用
-	Usart2_Init(115200);							//串口2，驱动ESP8266用
+    uart_init(&debug);
 	led_init(&led);
     oled_init(&oled);
-	UsartPrintf(USART_DEBUG, " \r\nHardware init OK\r\n");
+    debug.send_string(&debug, " \r\nHardware init OK\r\n");
     oled.show_string(&oled, 0, 10, "Hardware init OK", OLED_6X8);
     oled.update(&oled);
     dht11_init(&dht11);
     
     /* ESP8266初始化 */
-    UsartPrintf(USART_DEBUG, "\r\nESP8266 init...\r\n");
-	ESP8266_Init();					//初始化ESP8266
-    UsartPrintf(USART_DEBUG, "ESP8266 init OK\r\n");
+    debug.send_string(&debug, "\r\nESP8266 init...\r\n");
+	esp8266_init(&esp8266);					//初始化ESP8266
+    debug.send_string(&debug, "ESP8266 init OK\r\n");
     oled.show_string(&oled, 0, 20, "ESP8266 init OK", OLED_6X8);
     oled.update(&oled);
 	
     /* 连接MQTT服务器 */
-	UsartPrintf(USART_DEBUG, "\r\nConnect MQTTs Server...\r\n");
-	while(ESP8266_SendCmd(ESP8266_ONENET_INFO, "CONNECT"))
+    debug.send_string(&debug, "\r\nConnect MQTTs Server...\r\n");
+    while (esp8266.send_cmd(&esp8266, ESP8266_ONENET_INFO, "CONNECT"))
 		delay_ms(500);
-    UsartPrintf(USART_DEBUG, "Connect MQTT Server Success\r\n");
+    debug.send_string(&debug, "Connect MQTT Server Success\r\n");
     oled.show_string(&oled, 0, 30, "MQTT connect OK", OLED_6X8);
     oled.update(&oled);
 	
     /* OneNET设备登录 */
-	UsartPrintf(USART_DEBUG, "\r\nOneNET device login...\r\n");
+    debug.send_string(&debug, "\r\nOneNET device login...\r\n");
     while(OneNet_DevLink())			//接入OneNET
     {
-        ESP8266_SendCmd(ESP8266_ONENET_INFO, "CONNECT");
+        esp8266.send_cmd(&esp8266, ESP8266_ONENET_INFO, "CONNECT");
         delay_ms(500);
     }
 		
-    UsartPrintf(USART_DEBUG, "OneNET device login OK\r\n");
+    debug.send_string(&debug, "OneNET device login OK\r\n");
     oled.show_string(&oled, 0, 40, "OneNET device login", OLED_6X8);
     oled.update(&oled);
     
@@ -108,8 +116,8 @@ int main(void)
     oled.show_string(&oled, 0, 10, "OK", OLED_6X8);
     oled.update(&oled);
 	
-	/* 创建开始任务 */
+    /* 创建开始任务 */
     xTaskCreate(task_start, "task_start", START_STK_SIZE, NULL, START_TASK_PRIO, &start_task_handler);        
-				
+                    
     vTaskStartScheduler();          // 开启任务调度
 }

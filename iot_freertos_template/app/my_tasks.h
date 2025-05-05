@@ -17,7 +17,7 @@
 #include "delay.h"
 #include "led.h"
 #include "oled.h"
-#include "usart.h"
+#include "uart.h"
 #include "esp8266.h"
 #include "dht11.h"
 
@@ -25,6 +25,8 @@
 extern LEDDev_t led;
 extern OLEDDev_t oled;
 extern DHT11Dev_t dht11;
+extern UARTDev_t debug;
+extern ESP8266Dev_t esp8266;
 
 /* 开始任务 */
 #define START_TASK_PRIO	1

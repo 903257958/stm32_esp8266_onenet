@@ -40,58 +40,58 @@
         "name": "driver",
         "files": [
           {
-            "path": "../driver/delay.h"
-          },
-          {
             "path": "../driver/delay.c"
           },
           {
-            "path": "../driver/timer.h"
+            "path": "../driver/delay.h"
           },
           {
-            "path": "../driver/timer.c"
-          },
-          {
-            "path": "../driver/led.h"
-          },
-          {
-            "path": "../driver/led.c"
-          },
-          {
-            "path": "../driver/usart.h"
-          },
-          {
-            "path": "../driver/usart.c"
-          },
-          {
-            "path": "../driver/esp8266.h"
-          },
-          {
-            "path": "../driver/esp8266.c"
-          },
-          {
-            "path": "../driver/i2c.h"
-          },
-          {
-            "path": "../driver/i2c.c"
-          },
-          {
-            "path": "../driver/oled.h"
-          },
-          {
-            "path": "../driver/oled.c"
-          },
-          {
-            "path": "../driver/oled_data.h"
-          },
-          {
-            "path": "../driver/oled_data.c"
+            "path": "../driver/dht11.c"
           },
           {
             "path": "../driver/dht11.h"
           },
           {
-            "path": "../driver/dht11.c"
+            "path": "../driver/esp8266.c"
+          },
+          {
+            "path": "../driver/esp8266.h"
+          },
+          {
+            "path": "../driver/i2c.c"
+          },
+          {
+            "path": "../driver/i2c.h"
+          },
+          {
+            "path": "../driver/led.c"
+          },
+          {
+            "path": "../driver/led.h"
+          },
+          {
+            "path": "../driver/oled_data.c"
+          },
+          {
+            "path": "../driver/oled_data.h"
+          },
+          {
+            "path": "../driver/oled.c"
+          },
+          {
+            "path": "../driver/oled.h"
+          },
+          {
+            "path": "../driver/timer.c"
+          },
+          {
+            "path": "../driver/timer.h"
+          },
+          {
+            "path": "../driver/uart.c"
+          },
+          {
+            "path": "../driver/uart.h"
           }
         ],
         "folders": []

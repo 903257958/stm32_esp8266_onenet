@@ -455,16 +455,6 @@
               <FilePath>..\driver\led.c</FilePath>
             </File>
             <File>
-              <FileName>usart.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\driver\usart.h</FilePath>
-            </File>
-            <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\usart.c</FilePath>
-            </File>
-            <File>
               <FileName>esp8266.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\driver\esp8266.h</FilePath>
@@ -513,6 +503,26 @@
               <FileName>dht11.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\driver\dht11.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\uart.c</FilePath>
+            </File>
+            <File>
+              <FileName>uart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\uart.h</FilePath>
+            </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\driver\usart.c</FilePath>
+            </File>
+            <File>
+              <FileName>usart.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\driver\usart.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -13,7 +13,6 @@
 #include "hmac_sha1.h"
 
 //硬件驱动
-#include "usart.h"
 #include "delay.h"
 #include "led.h"
 #include "dht11.h"
@@ -30,15 +29,21 @@
 
 #define DEVICE_NAME		"device1"
 
-
 char devid[16];
-
 char key[48];
-
 
 extern unsigned char esp8266_buf[512];
 extern LEDDev_t led;
 extern DHT11Dev_t dht11;
+extern ESP8266Dev_t esp8266;
+
+#if 1
+	#include "uart.h"
+	extern UARTDev_t debug;
+	#define ONENET_DEBUG(str)	debug.send_string(&debug, str);
+#else
+	#define ONENET_DEBUG(str)
+#endif
 
 /*
 ************************************************************
@@ -155,6 +160,7 @@ static unsigned char OneNET_Authorization(char *ver, char *res, unsigned int et,
 	char hmac_sha1_buf[64];							//保存签名
 	char access_key_base64[64];						//保存access_key的Base64编码结合
 	char string_for_signature[72];					//保存string_for_signature，这个是加密的key
+	
 
 //----------------------------------------------------参数合法性--------------------------------------------------------------------
 	if(ver == (void *)0 || res == (void *)0 || et < 1564562581 || access_key == (void *)0
@@ -164,7 +170,6 @@ static unsigned char OneNET_Authorization(char *ver, char *res, unsigned int et,
 //----------------------------------------------------将access_key进行Base64解码----------------------------------------------------
 	memset(access_key_base64, 0, sizeof(access_key_base64));
 	BASE64_Decode((unsigned char *)access_key_base64, sizeof(access_key_base64), &olen, (unsigned char *)access_key, strlen(access_key));
-	//UsartPrintf(USART_DEBUG, "access_key_base64: %s\r\n", access_key_base64);
 	
 //----------------------------------------------------计算string_for_signature-----------------------------------------------------
 	memset(string_for_signature, 0, sizeof(string_for_signature));
@@ -172,7 +177,6 @@ static unsigned char OneNET_Authorization(char *ver, char *res, unsigned int et,
 		snprintf(string_for_signature, sizeof(string_for_signature), "%d\n%s\nproducts/%s\n%s", et, METHOD, res, ver);
 	else
 		snprintf(string_for_signature, sizeof(string_for_signature), "%d\n%s\nproducts/%s/devices/%s\n%s", et, METHOD, res, dev_name, ver);
-	//UsartPrintf(USART_DEBUG, "string_for_signature: %s\r\n", string_for_signature);
 	
 //----------------------------------------------------加密-------------------------------------------------------------------------
 	memset(hmac_sha1_buf, 0, sizeof(hmac_sha1_buf));
@@ -181,8 +185,6 @@ static unsigned char OneNET_Authorization(char *ver, char *res, unsigned int et,
 				(unsigned char *)string_for_signature, strlen(string_for_signature),
 				(unsigned char *)hmac_sha1_buf);
 	
-	//UsartPrintf(USART_DEBUG, "hmac_sha1_buf: %s\r\n", hmac_sha1_buf);
-	
 //----------------------------------------------------将加密结果进行Base64编码------------------------------------------------------
 	olen = 0;
 	memset(sign_buf, 0, sizeof(sign_buf));
@@ -190,14 +192,12 @@ static unsigned char OneNET_Authorization(char *ver, char *res, unsigned int et,
 
 //----------------------------------------------------将Base64编码结果进行URL编码---------------------------------------------------
 	OTA_UrlEncode(sign_buf);
-	//UsartPrintf(USART_DEBUG, "sign_buf: %s\r\n", sign_buf);
 	
 //----------------------------------------------------计算Token--------------------------------------------------------------------
 	if(flag)
 		snprintf(authorization_buf, authorization_buf_len, "version=%s&res=products%%2F%s&et=%d&method=%s&sign=%s", ver, res, et, METHOD, sign_buf);
 	else
 		snprintf(authorization_buf, authorization_buf_len, "version=%s&res=products%%2F%s%%2Fdevices%%2F%s&et=%d&method=%s&sign=%s", ver, res, dev_name, et, METHOD, sign_buf);
-	//UsartPrintf(USART_DEBUG, "Token: %s\r\n", authorization_buf);
 	
 	return 0;
 
@@ -220,6 +220,7 @@ static unsigned char OneNET_Authorization(char *ver, char *res, unsigned int et,
 //==========================================================
 _Bool OneNET_RegisterDevice(void)
 {
+	char onenet_debug_str[100];
 
 	_Bool result = 1;
 	unsigned short send_len = 11 + strlen(DEVICE_NAME);
@@ -231,7 +232,7 @@ _Bool OneNET_RegisterDevice(void)
 	if(send_ptr == NULL)
 		return result;
 	
-	while(ESP8266_SendCmd("AT+CIPSTART=\"TCP\",\"183.230.40.33\",80\r\n", "CONNECT"))
+	while (esp8266.send_cmd(&esp8266, "AT+CIPSTART=\"TCP\",\"183.230.40.33\",80\r\n", "CONNECT"))
 		delay_ms(500);
 	
 	OneNET_Authorization("2018-10-31", PROID, 1956499200, ACCESS_KEY, NULL,
@@ -246,8 +247,7 @@ _Bool OneNET_RegisterDevice(void)
 	
 					authorization_buf, 11 + strlen(DEVICE_NAME), DEVICE_NAME);
 	
-	ESP8266_SendData((unsigned char *)send_ptr, strlen(send_ptr));
-	
+	esp8266.send_data(&esp8266, (unsigned char *)send_ptr, strlen(send_ptr));
 	/*
 	{
 	  "request_id" : "f55a5a37-36e4-43a6-905c-cc8f958437b0",
@@ -264,7 +264,7 @@ _Bool OneNET_RegisterDevice(void)
 	}
 	*/
 	
-	data_ptr = (char *)ESP8266_GetIPD(250);							//等待平台响应
+	data_ptr = (char *)esp8266.get_ipd(&esp8266, 250);	// 等待平台响应
 	
 	if(data_ptr)
 	{
@@ -278,13 +278,14 @@ _Bool OneNET_RegisterDevice(void)
 		
 		if(sscanf(data_ptr, "device_id\" : \"%[^\"]\",\r\n\"name\" : \"%[^\"]\",\r\n\r\n\"pid\" : %d,\r\n\"key\" : \"%[^\"]\"", devid, name, &pid, key) == 4)
 		{
-			UsartPrintf(USART_DEBUG, "create device: %s, %s, %d, %s\r\n", devid, name, pid, key);
+			sprintf(onenet_debug_str, "create device: %s, %s, %d, %s\r\n", devid, name, pid, key);
+			ONENET_DEBUG(onenet_debug_str);
 			result = 0;
 		}
 	}
 	
 	free(send_ptr);
-	ESP8266_SendCmd("AT+CIPCLOSE\r\n", "OK");
+	esp8266.send_cmd(&esp8266, "AT+CIPCLOSE\r\n", "OK");
 	
 	return result;
 
@@ -303,7 +304,8 @@ _Bool OneNET_RegisterDevice(void)
 //==========================================================
 _Bool OneNet_DevLink(void)
 {
-	
+	char onenet_debug_str[256];
+
 	MQTT_PACKET_STRUCTURE mqttPacket = {NULL, 0, 0, 0};					//协议包
 
 	unsigned char *dataPtr;
@@ -315,30 +317,31 @@ _Bool OneNet_DevLink(void)
 	OneNET_Authorization("2018-10-31", PROID, 1956499200, ACCESS_KEY, DEVICE_NAME,
 								authorization_buf, sizeof(authorization_buf), 0);
 	
-	UsartPrintf(USART_DEBUG, "OneNET_DevLink\r\n"
-							"NAME: %s,	PROID: %s,	KEY:%s\r\n"
-                        , DEVICE_NAME, PROID, authorization_buf);
+	ONENET_DEBUG("OneNET_DevLink\r\n");
+	sprintf(onenet_debug_str, "NAME: %s,	PROID: %s,	KEY:%s\r\n", DEVICE_NAME, PROID, authorization_buf);
+	ONENET_DEBUG(onenet_debug_str);
 	
 	if(MQTT_PacketConnect(PROID, authorization_buf, DEVICE_NAME, 256, 1, MQTT_QOS_LEVEL0, NULL, NULL, 0, &mqttPacket) == 0)
-	{
-		ESP8266_SendData(mqttPacket._data, mqttPacket._len);			//上传平台
+	{		
+		esp8266.send_data(&esp8266, mqttPacket._data, mqttPacket._len);	// 上传平台
 		
-		dataPtr = ESP8266_GetIPD(250);									//等待平台响应
+		dataPtr = esp8266.get_ipd(&esp8266, 250);						// 等待平台响应
+		
 		if(dataPtr != NULL)
 		{
 			if(MQTT_UnPacketRecv(dataPtr) == MQTT_PKT_CONNACK)
 			{
 				switch(MQTT_UnPacketConnectAck(dataPtr))
 				{               
-                    case 0: UsartPrintf(USART_DEBUG, "Tips: Connection successful\r\n"); status = 0; break;
+					case 0: ONENET_DEBUG("Tips: Connection successful\r\n"); status = 0; break;
 
-                    case 1: UsartPrintf(USART_DEBUG, "WARN: Connection failed: Protocol error\r\n"); break;
-                    case 2: UsartPrintf(USART_DEBUG, "WARN: Connection failed: Invalid client ID\r\n"); break;
-                    case 3: UsartPrintf(USART_DEBUG, "WARN: Connection failed: Server error\r\n"); break;
-                    case 4: UsartPrintf(USART_DEBUG, "WARN: Connection failed: Invalid username or password\r\n"); break;
-                    case 5: UsartPrintf(USART_DEBUG, "WARN: Connection failed: Unauthorized (e.g., invalid token)\r\n"); break;
+                    case 1: ONENET_DEBUG("WARN: Connection failed: Protocol error\r\n"); break;
+                    case 2: ONENET_DEBUG("WARN: Connection failed: Invalid client ID\r\n"); break;
+                    case 3: ONENET_DEBUG("WARN: Connection failed: Server error\r\n"); break;
+                    case 4: ONENET_DEBUG("WARN: Connection failed: Invalid username or password\r\n"); break;
+                    case 5: ONENET_DEBUG("WARN: Connection failed: Unauthorized (e.g., invalid token)\r\n"); break;
 
-                    default: UsartPrintf(USART_DEBUG, "ERR: Connection failed: Unknown error\r\n"); break;
+                    default: ONENET_DEBUG("ERR: Connection failed: Unknown error\r\n"); break;
 				}
 			}
 		}
@@ -346,13 +349,16 @@ _Bool OneNet_DevLink(void)
 		MQTT_DeleteBuffer(&mqttPacket);								//删包
 	}
 	else
-		UsartPrintf(USART_DEBUG, "WARN:	MQTT_PacketConnect Failed\r\n");
+	{
+		ONENET_DEBUG("WARN:	MQTT_PacketConnect Failed\r\n");
+	}
+		
 	
 	return status;
 	
 }
 
-unsigned char OneNet_FillBuf(char *buf)
+uint16_t OneNet_FillBuf(char *buf)
 {
     char text[256];
 	
@@ -394,10 +400,11 @@ void OneNet_SendData(void)
 	MQTT_PACKET_STRUCTURE mqttPacket = {NULL, 0, 0, 0};												//协议包
 	
 	char buf[256];
+	char onenet_debug_str[256];
 	
 	short body_len = 0, i = 0;
 	
-//	UsartPrintf(USART_DEBUG, "Tips:	OneNet_SendData-MQTT\r\n");
+	ONENET_DEBUG("Tips:	OneNet_SendData-MQTT\r\n");
 	
 	memset(buf, 0, sizeof(buf));
 	
@@ -410,13 +417,17 @@ void OneNet_SendData(void)
 			for(; i < body_len; i++)
 				mqttPacket._data[mqttPacket._len++] = buf[i];
 			
-			ESP8266_SendData(mqttPacket._data, mqttPacket._len);									//上传数据到平台
-			UsartPrintf(USART_DEBUG, "Send %d Bytes\r\n", mqttPacket._len);
+				esp8266.send_data(&esp8266, mqttPacket._data, mqttPacket._len);			// 上传数据到平台
+			
+			sprintf(onenet_debug_str, "Send %d Bytes\r\n", mqttPacket._len);
+			ONENET_DEBUG(onenet_debug_str);
 			
 			MQTT_DeleteBuffer(&mqttPacket);															//删包
 		}
 		else
-			UsartPrintf(USART_DEBUG, "WARN:	EDP_NewBuffer Failed\r\n");
+		{
+			ONENET_DEBUG("WARN:	EDP_NewBuffer Failed\r\n");
+		}
 	}
 	
 }
@@ -435,16 +446,17 @@ void OneNet_SendData(void)
 //==========================================================
 void OneNET_Publish(const char *topic, const char *msg)
 {
-
-	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0};						//协议包
+	char onenet_debug_str[256];
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0};						// 协议包
 	
-	UsartPrintf(USART_DEBUG, "Publish Topic: %s, Msg: %s\r\n", topic, msg);
+	sprintf(onenet_debug_str, "Publish Topic: %s, Msg: %s\r\n", topic, msg);
+	ONENET_DEBUG(onenet_debug_str);
 	
 	if(MQTT_PacketPublish(MQTT_PUBLISH_ID, topic, msg, strlen(msg), MQTT_QOS_LEVEL0, 0, 1, &mqtt_packet) == 0)
 	{
-		ESP8266_SendData(mqtt_packet._data, mqtt_packet._len);					//向平台发送订阅请求
+		esp8266.send_data(&esp8266, mqtt_packet._data, mqtt_packet._len);		// 向平台发送订阅请求
 		
-		MQTT_DeleteBuffer(&mqtt_packet);										//删包
+		MQTT_DeleteBuffer(&mqtt_packet);										// 删包
 	}
 
 }
@@ -462,21 +474,23 @@ void OneNET_Publish(const char *topic, const char *msg)
 //==========================================================
 void OneNET_Subscribe(void)
 {
-	
-	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0};						//协议包
+	char onenet_debug_str[256];
+
+	MQTT_PACKET_STRUCTURE mqtt_packet = {NULL, 0, 0, 0};						// 协议包
 	
 	char topic_buf[64];
 	const char *topic = topic_buf;
 	
 	snprintf(topic_buf, sizeof(topic_buf), "$sys/%s/%s/thing/property/set", PROID, DEVICE_NAME);
-	
-	UsartPrintf(USART_DEBUG, "Subscribe Topic: %s\r\n", topic_buf);
+
+	sprintf(onenet_debug_str, "Subscribe Topic: %s\r\n", topic_buf);
+	ONENET_DEBUG(onenet_debug_str);
 	
 	if(MQTT_PacketSubscribe(MQTT_SUBSCRIBE_ID, MQTT_QOS_LEVEL0, &topic, 1, &mqtt_packet) == 0)
 	{
-		ESP8266_SendData(mqtt_packet._data, mqtt_packet._len);					//向平台发送订阅请求
+		esp8266.send_data(&esp8266, mqtt_packet._data, mqtt_packet._len);		// 向平台发送订阅请求
 		
-		MQTT_DeleteBuffer(&mqtt_packet);										//删包
+		MQTT_DeleteBuffer(&mqtt_packet);										// 删包
 	}
 
 }
@@ -494,7 +508,8 @@ void OneNET_Subscribe(void)
 //==========================================================
 void OneNet_RevPro(unsigned char *cmd)
 {
-	
+	char onenet_debug_str[256];
+
 	char *req_payload = NULL;
 	char *cmdid_topic = NULL;
 	
@@ -525,8 +540,9 @@ void OneNet_RevPro(unsigned char *cmd)
 			{
 //				char *data_ptr = NULL;
 				
-				UsartPrintf(USART_DEBUG, "topic: %s, topic_len: %d, payload: %s, payload_len: %d\r\n",
-																	cmdid_topic, topic_len, req_payload, req_len);
+				sprintf(onenet_debug_str, "topic: %s, topic_len: %d, payload: %s, payload_len: %d\r\n", 
+						cmdid_topic, topic_len, req_payload, req_len);
+				ONENET_DEBUG(onenet_debug_str);
                 
                 raw_json = cJSON_Parse(req_payload);
                 params_json = cJSON_GetObjectItem(raw_json,"params");
@@ -559,16 +575,22 @@ void OneNet_RevPro(unsigned char *cmd)
 		case MQTT_PKT_PUBACK:														//发送Publish消息，平台回复的Ack
 		
 			if(MQTT_UnPacketPublishAck(cmd) == 0)
-				UsartPrintf(USART_DEBUG, "Tips:	MQTT Publish Send OK\r\n");
+			{
+				ONENET_DEBUG("Tips:	MQTT Publish Send OK\r\n");
+			}
 			
 		break;
 		
 		case MQTT_PKT_SUBACK:																//发送Subscribe消息的Ack
 		
 			if(MQTT_UnPacketSubscribe(cmd) == 0)
-				UsartPrintf(USART_DEBUG, "Tips:	MQTT Subscribe OK\r\n");
+			{
+				ONENET_DEBUG("Tips:	MQTT Subscribe OK\r\n");
+			}
 			else
-				UsartPrintf(USART_DEBUG, "Tips:	MQTT Subscribe Err\r\n");
+			{
+				ONENET_DEBUG("Tips:	MQTT Subscribe Err\r\n");
+			}
 		
 		break;
 		
@@ -577,7 +599,7 @@ void OneNet_RevPro(unsigned char *cmd)
 		break;
 	}
 	
-	ESP8266_Clear();									//清空缓存
+	esp8266.clear(&esp8266);
 	
 	if(result == -1)
 		return;

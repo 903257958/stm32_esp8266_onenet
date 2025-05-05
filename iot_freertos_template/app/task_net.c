@@ -18,15 +18,16 @@ void task_net(void *p)
         /* 上发数据 */
         if(++timeCount >= 500)									//发送间隔5s
 		{
-			UsartPrintf(USART_DEBUG, "OneNet_SendData\r\n");
+			debug.send_string(&debug, "OneNet_SendData\r\n");
 			OneNet_SendData();									//发送数据
 			
 			timeCount = 0;
-			ESP8266_Clear();
+			esp8266.clear(&esp8266);
 		}
 		
         /* 接收数据 */
-		dataPtr = ESP8266_GetIPD(0);
+		dataPtr = esp8266.get_ipd(&esp8266, 0);
+
 		if(dataPtr != NULL)
 			OneNet_RevPro(dataPtr);
 
