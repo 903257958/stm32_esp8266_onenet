@@ -21,6 +21,7 @@
     #error esp8266.h: No processor defined!
 #endif
 
+/* 调试接口 */
 #if 1
 	#include "uart.h"
 	extern UARTDev_t debug;
@@ -29,8 +30,8 @@
 	#define ESP8266_DEBUG(str)
 #endif
 
-#define REV_OK		0	// 接收完成标志
-#define REV_WAIT	1	// 接收未完成标志
+/* WiFi信息 */
+#define ESP8266_WIFI_INFO	"AT+CWJAP=\"shouji\",\"thxd156369\"\r\n"
 
 typedef struct ESP8266Dev {
 	bool init_flag;							// 初始化标志
@@ -39,6 +40,8 @@ typedef struct ESP8266Dev {
     int (*send_cmd)(struct ESP8266Dev *dev, char *cmd, char *res);
     int (*send_data)(struct ESP8266Dev *dev, unsigned char *data, unsigned short len);
     uint8_t *(*get_ipd)(struct ESP8266Dev *dev, unsigned short timeout);
+	int (*get_time_init)(struct ESP8266Dev *dev);
+	int (*get_beijing_time)(struct ESP8266Dev *dev, uint16_t *year, uint8_t *month, uint8_t *day, uint8_t *hour, uint8_t *minute, uint8_t *second);
 	int (*deinit)(struct ESP8266Dev *dev);  // 去初始化
 }ESP8266Dev_t;
 

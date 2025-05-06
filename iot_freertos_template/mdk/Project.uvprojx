@@ -514,16 +514,6 @@
               <FileType>5</FileType>
               <FilePath>..\driver\uart.h</FilePath>
             </File>
-            <File>
-              <FileName>usart.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\driver\usart.c</FilePath>
-            </File>
-            <File>
-              <FileName>usart.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\driver\usart.h</FilePath>
-            </File>
           </Files>
         </Group>
         <Group>
